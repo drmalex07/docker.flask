@@ -15,5 +15,8 @@ RUN chmod +x /usr/local/bin/wsgi.py
 
 EXPOSE 5000
 
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=false 
+
 WORKDIR "/usr/local/"
 CMD ["/usr/local/bin/wsgi.py"]
