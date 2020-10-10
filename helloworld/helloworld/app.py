@@ -27,6 +27,12 @@ def get():
     response.headers['content-type'] = 'application/json; charset=utf-8';
     return response;
 
+@app.route("/redirect")
+def redirect_to_get():
+    location = url_for("get");
+    current_app.logger.info("Redirecting to %s", location)
+    return redirect(location);
+
 @app.route("/fail")
 def fail():
     h = request.headers;
