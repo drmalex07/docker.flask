@@ -33,6 +33,11 @@ def redirect_to_get():
     current_app.logger.info("Redirecting to %s", location)
     return redirect(location);
 
+@app.route("/unauthorized")
+def unauthorized():
+    current_app.logger.info("Not authorized");
+    abort(401)
+
 @app.route("/fail")
 def fail():
     h = request.headers;
