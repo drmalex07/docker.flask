@@ -27,6 +27,17 @@ def get():
     response.headers['content-type'] = 'application/json; charset=utf-8';
     return response;
 
+@app.route("/post", methods=['POST', 'PUT'])
+def post():
+    r = {
+        "params": dict(request.values),
+        "headers": dict(request.headers),
+        "body": request.json if request.is_json else None
+    };
+    response = make_response(r, 200);
+    response.headers['content-type'] = 'application/json; charset=utf-8';
+    return response;
+
 @app.route("/redirect")
 def redirect_to_get():
     location = url_for("get");
