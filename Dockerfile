@@ -7,19 +7,23 @@ LABEL usage="hello-world"
 RUN apt-get update
 RUN pip3 install flask
 
-ADD helloworld /usr/local/helloworld
-RUN cd /usr/local/helloworld && python3 setup.py install
+RUN mkdir /var/local/helloworld && chown www-data:www-data /var/local/helloworld
 
 ADD wsgi.py /usr/local/bin/wsgi.py
 RUN chmod +x /usr/local/bin/wsgi.py
 
-RUN mkdir /var/local/helloworld /var/local/helloworld/logs
-ADD logging.conf /var/local/helloworld
+COPY helloworld /usr/local/helloworld
+RUN cd /usr/local/helloworld && python3 setup.py install
+
+USER www-data
+WORKDIR /var/local/helloworld
+
+RUN mkdir ./logs
+ADD logging.conf .
 
 EXPOSE 5000
 
 ENV FLASK_ENV="production" FLASK_DEBUG="false" 
 ENV TLS_CERTIFICATE="" TLS_KEY=""
 
-WORKDIR /var/local/helloworld
 CMD ["/usr/local/bin/wsgi.py"]
