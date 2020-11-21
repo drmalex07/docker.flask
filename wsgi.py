@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 import os
 import logging
+import logging.config
 
 from helloworld.app import app
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO);
-    
+    #logging.basicConfig(level=logging.INFO);
+    logging.config.fileConfig('./logging.conf')
+
     ssl_context = None
     port = 5000
     

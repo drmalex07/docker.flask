@@ -19,6 +19,7 @@ def hello():
 
 @app.route("/get")
 def get():
+    current_app.logger.info("get: Echoing back parameters and headers...")
     r = {
         "params": dict(request.values),
         "headers": dict(request.headers),
