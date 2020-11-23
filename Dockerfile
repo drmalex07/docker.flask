@@ -5,7 +5,6 @@ LABEL framework="flask"
 LABEL usage="hello-world"
 
 RUN apt-get update
-RUN pip3 install flask
 
 RUN mkdir /var/local/helloworld && chown www-data:www-data /var/local/helloworld
 
@@ -13,7 +12,7 @@ ADD wsgi.py /usr/local/bin/wsgi.py
 RUN chmod +x /usr/local/bin/wsgi.py
 
 COPY helloworld /usr/local/helloworld
-RUN cd /usr/local/helloworld && python3 setup.py install
+RUN cd /usr/local/helloworld && pip3 install -r requirements.txt && python3 setup.py install
 
 USER www-data
 WORKDIR /var/local/helloworld
