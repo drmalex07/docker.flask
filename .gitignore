@@ -1,2 +1,5 @@
 /certs/
 /logs/
+__pycache__
+*.pyc
+*.egg-info
