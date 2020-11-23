@@ -5,10 +5,9 @@ LABEL framework="flask"
 LABEL usage="hello-world"
 
 RUN apt-get update
-RUN pip3 install flask
 
 ADD helloworld /usr/local/helloworld
-RUN cd /usr/local/helloworld && python3 setup.py install
+RUN cd /usr/local/helloworld && pip3 install -r requirements.txt && python3 setup.py install
 
 ADD wsgi.py /usr/local/bin/wsgi.py
 RUN chmod +x /usr/local/bin/wsgi.py
