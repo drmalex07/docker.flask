@@ -13,8 +13,10 @@ steps:
     REGISTRY_PASSWORD:
       from_secret: registry_password
   commands:
-  - env
-  - cd helloworld && pip install -r requirements.txt -r requirements-testing.txt
-  - cd helloworld && python setup.py nosetests --verbosity=2
   - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
+  - env
+  - ls -hal .
+  - cd helloworld
+  - pip install -r requirements.txt -r requirements-testing.txt
+  - python setup.py nosetests --verbosity=2
 
