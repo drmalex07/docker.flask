@@ -1,0 +1,20 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: nosetests
+  image: python:3.8-alpine 
+  when:
+    event:
+    - push
+    - tag
+  environment:
+    REGISTRY_PASSWORD:
+      from_secret: registry_password
+  commands:
+  - pip3 install nose
+  - cd helloworld && python setup.py nosetests --verbosity=2
+  - env
+  - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
+
