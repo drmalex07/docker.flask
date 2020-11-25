@@ -2,7 +2,7 @@
 
 kind: pipeline
 type: docker
-name: default
+name: testing-1
 
 steps:
 - name: nosetests
@@ -30,7 +30,7 @@ steps:
 
 kind: pipeline
 type: docker
-name: default
+name: testing-2
 
 steps:
 - name: nosetests-in-docker
