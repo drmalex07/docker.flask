@@ -1,3 +1,5 @@
+---
+
 kind: pipeline
 type: docker
 name: default
@@ -20,3 +22,45 @@ steps:
   - pip install -r requirements.txt -r requirements-testing.txt
   - python setup.py nosetests --verbosity=2
 
+
+---
+
+# An example using Docker-in-Docker for testing
+# see also: https://docs.drone.io/pipeline/docker/examples/services/docker_dind/
+
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: nosetests-in-docker
+  image: docker:19.03-dind
+  when:
+    event:
+    - push
+    - tag
+  volumes:
+  - name: dockersock
+    path: /var/run
+  environment:
+    DOCKER_HOST: unix:///var/run/docker.sock
+  commands:
+  # wait for Docker service to be up
+  - >-
+    (t=0; T=5; while ! docker info -f '{{.ID}}' 2>/dev/null; do t=$(( t + 1 )); test ${t} -ne ${T}; sleep 1; done)
+  # build the image for testing
+  - docker build . -f testing.dockerfile -t hello-flask:${DRONE_COMMIT}-testing
+  # run nosetests inside a testing container
+  - docker run --rm -u 1000:1000 -v $PWD:/work -w /work/helloworld hello-flask:${DRONE_COMMIT}-testing nosetests -v
+
+services:
+- name: docker
+  image: docker:19.03-dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
