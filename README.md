@@ -1,12 +1,14 @@
 # README
 
+
 ## Test
 
 Run tests:
 
     cd helloworld
     pip3 install -r requirements-testing.txt
-    python setup.py nosetests --verbosity=2 
+    python setup.py nosetests -v
+
 
 ## Build Docker image
     
