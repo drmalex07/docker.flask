@@ -12,6 +12,10 @@ steps:
     - push
     - tag
   environment:
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
     REGISTRY_PASSWORD:
       from_secret: registry_password
   commands:
@@ -40,7 +44,7 @@ steps:
     - push
     - tag
   volumes:
-  - name: dockersock
+  - name: docker_run
     path: /var/run
   environment:
     DOCKER_HOST: unix:///var/run/docker.sock
@@ -48,6 +52,7 @@ steps:
   # wait for Docker service to be up
   - >-
     (t=0; T=5; while ! docker info -f '{{.ID}}' 2>/dev/null; do t=$(( t + 1 )); test ${t} -ne ${T}; sleep 1; done)
+  - docker info
   # build the image for testing
   - docker build . -f testing.dockerfile -t hello-flask:${DRONE_COMMIT}-testing
   # run nosetests inside a testing container
@@ -57,10 +62,13 @@ services:
 - name: docker
   image: docker:19.03-dind
   privileged: true
+  command:
+  # optional: use a registry mirror to cache images from Docker Hub
+  - --registry-mirror=http://registry-mirror:5000
   volumes:
-  - name: dockersock
+  - name: docker_run
     path: /var/run
 
 volumes:
-- name: dockersock
+- name: docker_run
   temp: {}
