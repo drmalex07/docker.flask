@@ -69,7 +69,7 @@ steps:
       from_secret: docker_password
   commands:
   - docker build . -t "alexakis/hello-flask:${DRONE_TAG}"
-  - docker login -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
+  - docker login -u $${DOCKER_USERNAME} -p $${DOCKER_PASSWORD}
   - docker push "alexakis/hello-flask:${DRONE_TAG}"
 
 
