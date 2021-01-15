@@ -12,10 +12,6 @@ steps:
     - push
     - tag
   environment:
-    DOCKER_USERNAME:
-      from_secret: docker_username
-    DOCKER_PASSWORD:
-      from_secret: docker_password
     REGISTRY_PASSWORD:
       from_secret: registry_password
   commands:
@@ -57,6 +53,24 @@ steps:
   - docker build . -f testing.dockerfile -t hello-flask:${DRONE_COMMIT}-testing
   # run nosetests inside a testing container
   - docker run --rm -u 1000:1000 -v $PWD:/work -w /work/helloworld hello-flask:${DRONE_COMMIT}-testing nosetests -v
+
+- name: publish-image
+  image: docker:19.03-dind
+  when:
+    event:
+    - tag
+  volumes:
+  - name: docker_run
+    path: /var/run
+  environment:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    DOCKER_USERNAME: alexakis
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - docker build . -t "alexakis/hello-flask:${DRONE_TAG}"
+  - docker push "alexakis/hello-flask:${DRONE_TAG}"
+
 
 services:
 - name: docker
