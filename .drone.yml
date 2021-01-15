@@ -53,25 +53,7 @@ steps:
   - docker build . -f testing.dockerfile -t hello-flask:${DRONE_COMMIT}-testing
   # run nosetests inside a testing container
   - docker run --rm -u 1000:1000 -v $PWD:/work -w /work/helloworld hello-flask:${DRONE_COMMIT}-testing nosetests -v
-
-- name: publish-image
-  image: docker:19.03-dind
-  when:
-    event:
-    - tag
-  volumes:
-  - name: docker_run
-    path: /var/run
-  environment:
-    DOCKER_HOST: unix:///var/run/docker.sock
-    DOCKER_USERNAME: alexakis
-    DOCKER_PASSWORD:
-      from_secret: docker_password
-  commands:
-  - docker build . -t "alexakis/hello-flask:${DRONE_TAG}"
-  - docker login -u $${DOCKER_USERNAME} -p $${DOCKER_PASSWORD}
-  - docker push "alexakis/hello-flask:${DRONE_TAG}"
-
+  - echo $${DRONE_COMMIT::10}
 
 services:
 - name: docker
@@ -87,3 +69,39 @@ services:
 volumes:
 - name: docker_run
   temp: {}
+
+
+---
+
+# An example using a Drone "docker" plugin (plugins/docker) for publishing an image to a registry
+
+kind: pipeline
+type: docker
+name: publish
+
+steps:
+
+- name: publish-image
+  image: plugins/docker
+  when:
+    event:
+    - tag
+  settings:
+    debug: true
+    username: alexakis
+    password:
+      from_secret: docker_password
+    repo: alexakis/hello-flask
+    mirror: http://registry-mirror:5000
+    tags:
+    - '1'
+    - ${DRONE_TAG}
+    #build_args:
+    #- VERSION=${DRONE_TAG}
+
+# https://docs.drone.io/pipeline/configuration/#graph-execution
+depends_on:
+- testing-1
+- testing-2
+
+
