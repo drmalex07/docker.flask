@@ -5,6 +5,23 @@ type: docker
 name: testing-1
 
 steps:
+
+- name: checkout-submodules
+  image: alpine/git:v2.30.1
+  when:
+    event:
+    - push
+    - tag
+  commands:
+  - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
+  - env
+  - ls -hal .
+  # now submodule is empty
+  - ls -hal more/hello-octapus/
+  # now checkout submodule
+  - git submodule update --recursive --remote
+  - ls -hal more/hello-octapus/
+
 - name: nosetests
   image: python:3.8-alpine 
   when:
@@ -15,10 +32,6 @@ steps:
     REGISTRY_PASSWORD:
       from_secret: registry_password
   commands:
-  - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
-  - env
-  - ls -hal .
-  - ls -hal more/hello-octapus/
   - cd helloworld
   - pip install -r requirements.txt -r requirements-testing.txt
   - python setup.py nosetests --verbosity=2
