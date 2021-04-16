@@ -18,6 +18,7 @@ steps:
   - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
   - env
   - ls -hal .
+  - ls -hal more/hello-octapus/
   - cd helloworld
   - pip install -r requirements.txt -r requirements-testing.txt
   - python setup.py nosetests --verbosity=2

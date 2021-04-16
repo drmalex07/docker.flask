@@ -1,0 +1,3 @@
+[submodule "more/hello-octapus"]
+	path = more/hello-octapus
+	url = https://github.com/drmalex07/hello-octapus
