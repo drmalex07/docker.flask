@@ -16,10 +16,11 @@ steps:
   - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
   - env
   - ls -hal .
-  # now submodule is empty
+  # now submodule folders are empty
   - ls -hal more/hello-octapus/
-  # now checkout submodule
-  - git submodule update --recursive --remote
+  # now checkout submodule(s)
+  - git submodule init
+  - git submodule update --recursive
   - ls -hal more/hello-octapus/
 
 - name: nosetests
