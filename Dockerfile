@@ -4,13 +4,19 @@ LABEL language="python"
 LABEL framework="flask"
 LABEL usage="hello-world"
 
-RUN addgroup flask && adduser -h /var/local/helloworld -D -G flask flask && \
-  mkdir /usr/local/helloworld && chown flask:flask /usr/local/helloworld
+RUN addgroup flask \
+    && adduser -h /var/local/helloworld -D -G flask flask \
+    && mkdir /usr/local/helloworld && chown flask:flask /usr/local/helloworld
 
-#RUN pip3 install --upgrade --disable-pip-version-check pip
-RUN pip3 install gunicorn==20.0.4
-COPY --chown=flask helloworld /usr/local/helloworld/
-RUN cd /usr/local/helloworld/ && pip3 install -r requirements.txt && python3 setup.py install
+WORKDIR /usr/local/helloworld
+
+RUN pip3 install --no-cache-dir --upgrade --disable-pip-version-check pip \
+    && pip3 install --no-cache-dir gunicorn==20.0.4
+COPY --chown=flask helloworld/requirements.txt /usr/local/helloworld/
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY --chown=flask helloworld/ /usr/local/helloworld/
+RUN python3 setup.py install
 
 COPY --chown=root:flask docker-command.sh /
 RUN chmod og+x /docker-command.sh

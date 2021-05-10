@@ -11,8 +11,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    current_app.logger.info("hello: Generating a hello-world response");
-    current_app.logger.debug("hello: params=%s headers=%s environ=%s", \
+    current_app.logger.info("/: Generating a hello-world response");
+    current_app.logger.debug("/: params=%s headers=%s environ=%s", \
         dict(request.values), dict(request.headers), dict(request.environ));
     response = make_response("Hello Flask!", 200);
     response.headers['x-foo'] = 'Bar';
@@ -20,7 +20,7 @@ def hello():
 
 @app.route("/get")
 def get():
-    current_app.logger.info("get: Echoing parameters and headers...")
+    current_app.logger.info("/get: Echoing parameters and headers...")
     r = {
         "params": dict(request.values),
         "headers": dict(request.headers),
