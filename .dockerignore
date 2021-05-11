@@ -1,3 +1,13 @@
 certs
 logs
 */*.egg-info
+
+docker-compose.yml
+docker-compose.yml.example
+
+more
+
+Dockerfile
+testing.dockerfile
+
+logging-syslog.conf

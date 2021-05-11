@@ -1,0 +1,25 @@
+# vim: syntax=yaml:
+
+version: '3.6'
+services:
+
+  'app':
+    image: 'local/hello-flask:0.1'
+    build:
+      context: .
+      #args: {}
+    volumes:
+    - type: 'bind'
+      source: ./logs
+      target: /var/local/helloworld/logs
+    #- type: 'bind'
+    #  source: ./logging-syslog.conf
+    #  target: /var/local/helloworld/logging.conf
+    #  read_only: true
+    environment:
+      TZ: Europe/Athens
+      #RSYSLOG_HOST: '10.0.4.13'
+      #RSYSLOG_PORT: '10514'
+    ports:
+    - '5000:5000'
+    network_mode: "bridge"

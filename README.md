@@ -18,9 +18,5 @@ Build:
 
 Try it:
 
-    docker run --rm -it -p 5000:5000 \
-        --volume $PWD/logs:/var/local/helloworld/logs \
-        --link rsyslog_rsyslog_1:rsyslog \
-        --env TZ=Europe/Athens \
-        local/hello-flask:0.1
+    docker run --rm -it -p 5000:5000 --volume $PWD/logs:/var/local/helloworld/logs local/hello-flask:0.1
 
