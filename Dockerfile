@@ -6,8 +6,14 @@ LABEL usage="hello-world"
 
 RUN apt-get update
 
-ADD helloworld /usr/local/helloworld
-RUN cd /usr/local/helloworld && pip3 install -r requirements.txt && python3 setup.py install
+RUN mkdir /usr/local/helloworld
+WORKDIR /usr/local/helloworld
+
+ADD helloworld/requirements.txt helloworld/setup.py ./
+RUN pip3 install -r requirements.txt
+
+ADD helloworld/helloworld ./helloworld
+RUN python3 setup.py install
 
 ADD wsgi.py /usr/local/bin/wsgi.py
 RUN chmod +x /usr/local/bin/wsgi.py

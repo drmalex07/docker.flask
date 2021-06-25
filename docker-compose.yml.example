@@ -1,0 +1,21 @@
+# vim: syntax=yaml:
+
+version: '3.6'
+services:
+
+  'app':
+    image: 'local/hello-flask:0.1'
+    build:
+      context: .
+      #args: {}
+    volumes:
+    - type: 'bind'
+      source: ./logs
+      target: /var/local/helloworld/logs
+    environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: 'true'
+      TZ: Europe/Athens
+    ports:
+    - '5000:5000'
+    network_mode: "bridge"
