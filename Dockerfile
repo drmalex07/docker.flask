@@ -1,5 +1,7 @@
 FROM python:3.8-alpine
 
+ARG git_commit=
+
 LABEL language="python"
 LABEL framework="flask"
 LABEL usage="hello-world"
@@ -31,6 +33,7 @@ EXPOSE 5443
 
 ENV FLASK_ENV="production" FLASK_DEBUG="false" 
 ENV TLS_CERTIFICATE="" TLS_KEY=""
+ENV GIT_COMMIT=${git_commit}
 
 USER flask
 CMD ["/docker-command.sh"]

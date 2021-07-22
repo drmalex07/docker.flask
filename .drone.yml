@@ -111,8 +111,8 @@ steps:
     tags:
     - '1'
     - ${DRONE_TAG}
-    #build_args:
-    #- VERSION=${DRONE_TAG}
+    build_args:
+    - git_commit=${DRONE_COMMIT}
 
 # https://docs.drone.io/pipeline/configuration/#graph-execution
 depends_on:
