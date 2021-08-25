@@ -6,8 +6,8 @@ name: testing-1
 
 steps:
 
-- name: checkout-submodules
-  image: alpine/git:v2.30.1
+- name: print-env
+  image: busybox:1
   when:
     event:
     - push
@@ -15,6 +15,14 @@ steps:
   commands:
   - echo tag=${DRONE_TAG} branch=${DRONE_BRANCH} commit=${DRONE_COMMIT}
   - env
+
+- name: checkout-submodules
+  image: alpine/git:v2.30.1
+  when:
+    event:
+    - push
+    - tag
+  commands:
   - ls -hal .
   # now submodule folders are empty
   - ls -hal more/hello-octapus/
