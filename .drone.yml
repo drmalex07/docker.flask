@@ -31,21 +31,6 @@ steps:
   - git submodule update --recursive
   - ls -hal more/hello-octapus/
 
-- name: nosetests
-  image: python:3.8-alpine 
-  when:
-    event:
-    - push
-    - tag
-  environment:
-    REGISTRY_PASSWORD:
-      from_secret: registry_password
-  commands:
-  - cd helloworld
-  - pip install -r requirements.txt -r requirements-testing.txt
-  - python setup.py nosetests --verbosity=2
-
-
 ---
 
 # An example using Docker-in-Docker for testing
@@ -102,9 +87,20 @@ kind: pipeline
 type: docker
 name: publish
 
+environment:
+  TAG_1: 'gunicorn'
+
 steps:
 
-- name: publish-image
+- name: prepare-tags-1
+  image: busybox:1.32
+  when:
+    event:
+    - tag
+  commands:
+  - echo -n "1,${DRONE_TAG},${DRONE_TAG}-$${TAG_1}" | tee .tags
+
+- name: publish-image-1
   image: plugins/docker
   when:
     event:
@@ -116,15 +112,38 @@ steps:
       from_secret: docker_password
     repo: alexakis/hello-flask
     mirror: http://registry-mirror:5000
-    tags:
-    - '1'
-    - ${DRONE_TAG}
-    build_args:
+    build_args: &build_args
     - git_commit=${DRONE_COMMIT}
+
+- name: prepare-tags-2
+  image: busybox:1.32
+  when:
+    event:
+    - tag
+  commands:
+  - echo -n "1,1-snapshot,${DRONE_TAG},${DRONE_TAG}-$${TAG_1}" | tee .tags
+
+- name: publish-image-2
+  image: plugins/docker
+  when:
+    event:
+    - tag
+  settings:
+    debug: true
+    username:
+      from_secret: registry_username
+    password:
+      from_secret: registry_password
+    repo: registry-dev-1-opertusmundi:30474/opertusmundi/api-gateway
+    mirror: http://registry-mirror:5000
+    registry: registry-dev-1-opertusmundi:30474
+    build_args: *build_args
 
 # https://docs.drone.io/pipeline/configuration/#graph-execution
 depends_on:
 - testing-1
 - testing-2
+
+
 
 
