@@ -1,3 +1,11 @@
+FROM python:3.8-alpine AS build-stage-1
+
+RUN apk update \
+    && apk add --no-cache g++ gcc musl-dev libc-dev python3-dev
+
+RUN pip3 install --prefix=/usr/local --no-cache-dir "tzlocal==3.0"
+
+
 FROM python:3.8-alpine
 
 ARG git_commit=
@@ -6,6 +14,8 @@ LABEL language="python"
 LABEL framework="flask"
 LABEL usage="hello-world"
 
+COPY --from=build-stage-1 /usr/local/ /usr/local/
+
 RUN addgroup flask \
     && adduser -h /var/local/helloworld -D -G flask flask \
     && mkdir /usr/local/helloworld && chown flask:flask /usr/local/helloworld
@@ -13,7 +23,7 @@ RUN addgroup flask \
 WORKDIR /usr/local/helloworld
 
 RUN pip3 install --no-cache-dir --upgrade --disable-pip-version-check pip \
-    && pip3 install --no-cache-dir gunicorn==20.0.4
+    && pip3 install --no-cache-dir "gunicorn==20.0.4"
 COPY --chown=flask helloworld/requirements.txt /usr/local/helloworld/
 RUN pip3 install --no-cache-dir -r requirements.txt
 
