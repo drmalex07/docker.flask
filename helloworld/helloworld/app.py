@@ -1,6 +1,7 @@
 import logging
 import urllib
 import json
+import os
 
 from flask import Flask
 from flask import request, session, current_app
@@ -14,7 +15,7 @@ def hello():
     current_app.logger.info("/: Generating a hello-world response");
     current_app.logger.debug("/: params=%s headers=%s environ=%s", \
         dict(request.values), dict(request.headers), dict(request.environ));
-    response = make_response("Hello Flask!", 200);
+    response = make_response("Hello Flask (from %(HOSTNAME)s)!" % (os.environ), 200);
     response.headers['x-foo'] = 'Bar';
     return response;
 
@@ -56,3 +57,6 @@ def fail():
     h = request.headers;
     p = request.values;
     raise Exception("ooops");
+
+
+
