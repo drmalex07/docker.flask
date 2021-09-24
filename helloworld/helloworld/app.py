@@ -2,6 +2,12 @@ import logging
 import urllib
 import json
 import os
+import sys
+
+import traceback
+from itertools import chain
+
+from werkzeug.exceptions import BadRequest
 
 from flask import Flask
 from flask import request, session, current_app
@@ -9,6 +15,10 @@ from flask import url_for, make_response, redirect, abort
 from flask import render_template
 
 app = Flask(__name__)
+
+#
+# Routing
+#
 
 @app.route("/")
 def hello():
@@ -56,7 +66,31 @@ def unauthorized():
 def fail():
     h = request.headers;
     p = request.values;
-    raise Exception("ooops");
+    raise BadRequest("ooops");
 
+#
+# Exception handling
+#
 
+@app.errorhandler(BadRequest)
+def handle_bad_request(ex):
+    extra = {
+        'msgid': 'hello-flask',
+        'structured_data': {
+            'mdc': {
+                'key1': 'value1', 
+                'key2': 'value2',
+                'exception-message': ex.description,
+                'exception': _format_traceback(),
+            }
+        }
+    }
+    current_app.logger.error("Bad request for [%s %s]: %s", 
+        request.method, request.full_path, ex.description, extra=extra)
+    
+    return ex # ex is a valid response object    
+
+def _format_traceback():
+    tb = traceback.format_exception(*sys.exc_info());
+    return '|'.join(chain.from_iterable((s.splitlines() for s in tb[1:])))
 
