@@ -72,10 +72,26 @@ def fail():
 # Exception handling
 #
 
+class LoggingContextFilter(logging.Filter):
+
+    def filter(self, record):
+        record.msgid = 'hello-flask'
+        if not hasattr(record, 'structured_data'):
+            record.structured_data = {'mdc': {}}
+        mdc = record.structured_data.get('mdc') 
+        if mdc is None:
+            mdc = record.structured_data['mdc'] = {}
+        mdc.update({
+            'logger': record.name,
+            'thread': record.threadName
+        })
+        return True;
+
+app.logger.addFilter(LoggingContextFilter())
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(ex):
     extra = {
-        'msgid': 'hello-flask',
         'structured_data': {
             'mdc': {
                 'key1': 'value1', 
@@ -86,11 +102,13 @@ def handle_bad_request(ex):
         }
     }
     current_app.logger.error("Bad request for [%s %s]: %s", 
-        request.method, request.full_path, ex.description, extra=extra)
+        request.method, request.full_path, ex.description,
+        extra=extra)
     
     return ex # ex is a valid response object    
 
 def _format_traceback():
+    '''Format traceback as a string without newlines'''
     tb = traceback.format_exception(*sys.exc_info());
     return '|'.join(chain.from_iterable((s.splitlines() for s in tb[1:])))
 
