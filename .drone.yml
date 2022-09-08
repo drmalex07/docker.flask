@@ -32,7 +32,6 @@ steps:
   - ls -hal more/hello-octapus/
 
 ---
-
 # An example using Docker-in-Docker for testing
 # see also: https://docs.drone.io/pipeline/docker/examples/services/docker_dind/
 
