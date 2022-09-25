@@ -6,5 +6,8 @@ __pycache__
 *.pyc
 *.egg-info
 
+.project
+.pydevproject
+
 docker-compose.yml
 /config/

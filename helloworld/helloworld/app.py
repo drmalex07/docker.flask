@@ -13,6 +13,8 @@ from flask import Flask
 from flask import request, session, current_app
 from flask import url_for, make_response, redirect, abort
 from flask import render_template
+from flask.helpers import stream_with_context
+from time import sleep
 
 app = Flask(__name__)
 
@@ -25,7 +27,7 @@ def hello():
     current_app.logger.info("/: Generating a hello-world response");
     current_app.logger.debug("/: params=%s headers=%s environ=%s", \
         dict(request.values), dict(request.headers), dict(request.environ));
-    response = make_response("Hello Flask (from %(HOSTNAME)s)!" % (os.environ), 200);
+    response = make_response("Hello Flask (from %(HOSTNAME)s)" % (os.environ), 200);
     response.headers['x-foo'] = 'Bar';
     return response;
 
@@ -68,6 +70,21 @@ def fail():
     p = request.values;
     raise BadRequest("ooops");
 
+# an example with streaming data
+
+@stream_with_context
+def generate_data1():
+    for i in range(10):
+        s = "toto" if (i % 2 == 0) else "frufru";
+        yield f"{i+1};{s}\n"
+        print(f" == generate_data1(): i={i}");
+        sleep(1.0)
+    print(" == generate_data1():  Done");
+
+@app.route("/data1")
+def data1():
+    return generate_data1(), {"content-type": "text/csv" }
+
 #
 # Exception handling
 #
@@ -89,7 +106,7 @@ class LoggingContextFilter(logging.Filter):
 
 app.logger.addFilter(LoggingContextFilter())
 
-@app.errorhandler(BadRequest)
+# Fixme @app.errorhandler(BadRequest)
 def handle_bad_request(ex):
     extra = {
         'structured_data': {
@@ -104,9 +121,21 @@ def handle_bad_request(ex):
     current_app.logger.error("Bad request for [%s %s]: %s", 
         request.method, request.full_path, ex.description,
         extra=extra)
-    
     return ex # ex is a valid response object    
 
+@app.errorhandler(Exception)
+def handle_any_error(ex):
+    extra = {
+        'structured_data': {
+            'mdc': {
+                'exception-message': ex.description,
+                'exception': _format_traceback(),
+            }
+        }
+    }
+    current_app.logger.error("Unexpected error: %s", ex.description, extra=extra)
+    return ex # ex is a valid response object    
+ 
 def _format_traceback():
     '''Format traceback as a string without newlines'''
     tb = traceback.format_exception(*sys.exc_info());
